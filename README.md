@@ -2,11 +2,13 @@
 
 A collection of independently implemented ROS 2 challenges built around the `turtlesim` package.
 
-This repository documents my progress in learning ROS 2 by solving the challenge exercises from the book *ROS 2 from Scratch* by Edouard Renard.
+The challenges are based on the book *ROS 2 from Scratch* by Edouard Renard and are implemented as part of my personal learning journey.
 
 ## Learning Goals
 
-The goal of this project is to strengthen my understanding of ROS 2 by implementing practical applications using concepts such as:
+This project aims to gain hands-on experience with ROS 2 software development by implementing practical applications in both **Python** (`rclpy`) and **C++** (`rclcpp`).
+
+The challenges cover core ROS 2 concepts such as:
 
 - Nodes
 - Topics
@@ -16,7 +18,7 @@ The goal of this project is to strengthen my understanding of ROS 2 by implement
 - Launch Files
 - Custom Interfaces
 
-Each challenge builds upon the previous one, resulting in a progressively more capable ROS 2 application.
+Each challenge extends the previous one, resulting in a progressively more capable ROS 2 application.
 
 ## Current Challenge
 
@@ -58,10 +60,16 @@ Start `turtlesim`:
 ros2 run turtlesim turtlesim_node
 ```
 
-Start the controller:
+Start the Python controller:
 
 ```bash
 ros2 run turtle_controller_py turtle_controller
+```
+
+Start the C++ controller:
+
+```bash
+ros2 run turtle_controller_cpp turtle_controller
 ```
 
 ## Acknowledgement
