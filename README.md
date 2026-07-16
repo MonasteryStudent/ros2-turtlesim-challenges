@@ -20,20 +20,35 @@ The challenges cover core ROS 2 concepts such as:
 
 Each challenge extends the previous one, resulting in a progressively more capable ROS 2 application.
 
-## Current Challenge
+## Challenges
 
-### Closed-Loop Turtle Controller
+### 1. Topic Challenge
 
-The controller subscribes to the turtle's pose and publishes velocity commands to move the turtle in a circle.
+A closed-loop turtle controller that subscribes to the turtle's pose and publishes velocity commands to move the turtle in a circle.
 
 Behavior:
 
-- If `x < 5.5`, the turtle moves with:
+- If `x < 5.5`:
   - `linear.x = 1.0`
   - `angular.z = 1.0`
 - Otherwise:
   - `linear.x = 2.0`
   - `angular.z = 2.0`
+
+### 2. Service Challenge
+
+#### 2.1 Service Client
+
+The turtle controller is extended with a service client that changes the turtle's pen color using the `SetPen` service.
+
+Behavior:
+
+- Green pen while the turtle is on the left side of the screen.
+- Red pen while the turtle is on the right side of the screen.
+
+#### 2.2 Custom Interface and Service Server
+
+*Coming soon.*
 
 ## Requirements
 
