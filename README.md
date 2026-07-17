@@ -48,7 +48,9 @@ Behavior:
 
 #### 2.2 Custom Interface and Service Server
 
-*Coming soon.*
+The turtle controller is extended with a custom service interface and a service server that allows external clients to activate or deactivate the turtle.
+
+When the controller is deactivated, it stops publishing new velocity commands. When reactivated, it resumes controlling the turtle.
 
 ## Requirements
 
