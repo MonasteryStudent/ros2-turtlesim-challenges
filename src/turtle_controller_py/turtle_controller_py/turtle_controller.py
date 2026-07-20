@@ -11,8 +11,10 @@ from turtlesim.srv import SetPen
 class TurtleControllerNode(Node):
     def __init__(self):
         super().__init__("turtle_controller")
+
         self.is_active = True
         self.init_pen_color_settings()
+
         self.pose_sub = self.create_subscription(
             Pose, "/turtle1/pose", self.pose_callback, 10)
         self.cmd_vel_pub = self.create_publisher(
@@ -21,6 +23,7 @@ class TurtleControllerNode(Node):
             SetPen, "/turtle1/set_pen")
         self.switch_activation_service = self.create_service(
             SwitchActivation, "switch_activation", self.switch_activation_service_callback)
+        
         self.get_logger().info("Turtle Controller has been started.")
 
     def init_pen_color_settings(self):
@@ -75,20 +78,23 @@ class TurtleControllerNode(Node):
         self.get_logger().info(f"Pen color changed to {color_name}.")
 
     def switch_activation_service_callback(self, request, response):
-        if request.activate and not self.is_active:
-            self.is_active = request.activate
-            response.message = "Turtle activated."
-            response.success = True
-        elif not request.activate and self.is_active:
-            self.is_active = request.activate
-            response.message = "Turtle deactivated."
-            response.success = True
-        elif request.activate:
-            response.message = "Turtle already activated."
+        if request.activate == self.is_active:
             response.success = False
-        else:
-            response.message = "Turtle already deactivated."
-            response.success = False
+            response.message = (
+                "Turtle already activated."
+                if self.is_active
+                else "Turtle already deactivated."
+            )
+            return response
+
+        self.is_active = request.activate
+        response.success = True
+        response.message = (
+            "Turtle activated."
+            if self.is_active
+            else "Turtle deactivated."
+        )
+
         return response
             
 
