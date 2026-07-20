@@ -59,13 +59,11 @@ class TurtleControllerNode(Node):
         if pose.x < screen_middle:
             cmd.linear.x = 1.0
             cmd.angular.z = 1.0
-
             if self.pen_cur_color == "red":
                 self.call_set_pen("green")
         else:
             cmd.linear.x = 2.0
             cmd.angular.z = 2.0
-
             if self.pen_cur_color == "green":
                 self.call_set_pen("red")
 
@@ -77,16 +75,22 @@ class TurtleControllerNode(Node):
         self.get_logger().info(f"Pen color changed to {color_name}.")
 
     def switch_activation_service_callback(self, request, response):
-        if self.is_active:
-            self.is_active = False
+        if request.activate and not self.is_active:
+            self.is_active = request.activate
+            response.message = "Turtle activated."
+            response.success = True
+        elif not request.activate and self.is_active:
+            self.is_active = request.activate
             response.message = "Turtle deactivated."
-            self.get_logger().info("Turtle deactivated.")
+            response.success = True
+        elif request.activate:
+            response.message = "Turtle already activated."
+            response.success = False
         else:
-            self.is_active = True
-            response.message = "Turtle reactivated."
-            self.get_logger().info("Turtle reactivated.")
+            response.message = "Turtle already deactivated."
+            response.success = False
         return response
-
+            
 
 def main(args=None):
     rclpy.init(args=args)

@@ -1,2 +1,4 @@
+bool activate
 ---
 string message
+bool success
