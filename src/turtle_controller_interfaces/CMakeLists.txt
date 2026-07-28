@@ -12,6 +12,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   # add the names of new custom interfaces here
   "srv/SwitchActivation.srv"
+  "action/NavigateToPosition.action"
 )
 ament_export_dependencies(rosidl_default_runtime)
 

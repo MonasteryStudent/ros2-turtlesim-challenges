@@ -2,7 +2,7 @@
 
 A collection of independently implemented ROS 2 challenges built around the `turtlesim` package.
 
-The challenges are based on the book *ROS 2 from Scratch* by Edouard Renard and are implemented as part of my personal learning journey.
+The Topic and Service challenges are based on the book *ROS 2 from Scratch* by Edouard Renard. The Action challenge was designed independently to apply and deepen the concepts introduced in the book.
 
 ## Learning Goals
 
@@ -18,7 +18,7 @@ The challenges cover core ROS 2 concepts such as:
 - Launch Files
 - Custom Interfaces
 
-Each challenge extends the previous one, resulting in a progressively more capable ROS 2 application.
+The challenges build upon previously introduced ROS 2 concepts, resulting in progressively more capable applications.
 
 ## Challenges
 
@@ -52,6 +52,25 @@ The turtle controller is extended with a custom service interface and a service 
 
 When the controller is deactivated, it stops publishing new velocity commands. When reactivated, it resumes controlling the turtle.
 
+### 3. Action Challenge
+
+This self-designed challenge introduces ROS 2 actions by implementing a navigation Action Server for `turtlesim`.
+
+The server accepts a target position and controls the turtle until the destination is reached.
+
+Features:
+
+- Accepts target coordinates through a custom `NavigateToPosition` action.
+- Rejects targets outside the valid `turtlesim` area.
+- Rejects new goals while another goal is active.
+- Continuously publishes the remaining distance as feedback.
+- Supports cancel requests.
+- Returns the final turtle position and whether the goal was completed successfully.
+- Uses a closed-loop controller based on the current turtle pose.
+- Uses a `MultiThreadedExecutor` and a `ReentrantCallbackGroup` so pose updates and Action callbacks can be processed concurrently.
+
+Unlike the previous challenges, this challenge was designed independently to apply the ROS 2 Action concepts introduced in the book.
+
 ## Requirements
 
 - Ubuntu 24.04
@@ -67,6 +86,12 @@ Source the workspace:
 
 ```bash
 source install/setup.bash
+```
+
+Alternatively, you can use the provided helper script, which sources both the ROS 2 installation and the workspace:
+
+```bash
+source scripts/setup.sh
 ```
 
 ## Run
@@ -91,6 +116,8 @@ ros2 run turtle_controller_cpp turtle_controller
 
 ## Acknowledgement
 
-The challenge descriptions are based on the book *ROS 2 from Scratch* by Edouard Renard.
+The Topic and Service challenges are based on the book *ROS 2 from Scratch* by Edouard Renard.
 
-The implementations in this repository are my own solutions developed as part of my learning process.
+The Action challenge was designed independently to explore ROS 2 actions, feedback, cancellation, and concurrency.
+
+All implementations in this repository are my own solutions developed as part of my learning process.

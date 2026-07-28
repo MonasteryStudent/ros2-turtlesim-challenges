@@ -1,0 +1,11 @@
+# Goal
+float64 target_x
+float64 target_y
+---
+# Result
+bool success
+float64 final_x
+float64 final_y
+---
+# Feedback
+float64 distance_remaining
