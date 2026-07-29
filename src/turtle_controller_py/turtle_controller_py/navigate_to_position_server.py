@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 
-import time
 import math
+import time
+
 import rclpy
+from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.action.server import ServerGoalHandle
-from turtle_controller_interfaces.action import NavigateToPosition
-from geometry_msgs.msg import Twist
-from turtlesim.msg import Pose
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
+from turtlesim.msg import Pose
+
+from turtle_controller_interfaces.action import NavigateToPosition
 
 
 class NavigateToPositionServerNode(Node):
@@ -35,31 +37,31 @@ class NavigateToPositionServerNode(Node):
             self,
             NavigateToPosition,
             "navigate_to_position",
-            goal_callback = self.goal_callback,
-            cancel_callback = self.cancel_callback,
-            execute_callback = self.execute_callback,
-            callback_group = ReentrantCallbackGroup()
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback,
+            execute_callback=self.execute_callback,
+            callback_group=ReentrantCallbackGroup()
         )
 
         self.get_logger().info("Navigate to position action server started.")
 
-    # Process every incoming cancel request.
     def cancel_callback(self, goal_handle: ServerGoalHandle) -> CancelResponse:
+        """Accept an incoming goal cancellation request."""
         self.get_logger().info("Received a cancel request.")
         return CancelResponse.ACCEPT
 
     def pose_callback(self, pose_msg: Pose) -> None:
+        """Update the turtle's current pose."""
         self.current_x = pose_msg.x
         self.current_y = pose_msg.y
         self.current_theta = pose_msg.theta
         self.pose_received = True
 
-    # Process every incoming goal request.
     def goal_callback(
         self, 
         goal_request: NavigateToPosition.Goal
     ) -> GoalResponse:
-        
+        """Validate and accept or reject an incoming goal request."""
         self.get_logger().info("Received a goal.")
 
         if self.goal_active:
@@ -93,29 +95,28 @@ class NavigateToPositionServerNode(Node):
         self.get_logger().info("Accepting the goal.")
         return GoalResponse.ACCEPT
 
-    # Compute the Euclidean distance to the target position.
     def compute_distance(self) -> float:
-        return math.sqrt(
-            (self.target_x - self.current_x) ** 2 + (self.target_y - self.current_y) ** 2
-        )
-
-    # Compute the heading from the current position to the target.    
+        """Compute the Euclidean distance to the target position."""
+        dx = self.target_x - self.current_x
+        dy = self.target_y - self.current_y
+        return math.sqrt(dx ** 2 + dy ** 2)
+   
     def compute_target_angle(self) -> float:
+        """Compute the heading from the current position to the target."""
         dx = self.target_x - self.current_x
         dy = self.target_y - self.current_y
         return math.atan2(dy, dx)
 
-    # Compute the angular error between the current heading and the desired heading.
     def compute_angle_error(self) -> float:
+        """Compute the difference between the current and desired heading."""
         target_angle = self.compute_target_angle()
         return target_angle - self.current_theta
 
-    # Execute an accepted goal until it succeeds or is canceled.
     def execute_callback(
         self,
         goal_handle: ServerGoalHandle
     ) -> NavigateToPosition.Result:
-
+        """Execute an accepted navigation goal until completion or cancellation."""
         self.target_x = goal_handle.request.target_x
         self.target_y = goal_handle.request.target_y
 
@@ -123,6 +124,8 @@ class NavigateToPositionServerNode(Node):
         distance_tolerance = 0.5
         angular_speed = 1.0
         linear_speed = 1.0
+        feedback_interval = 0.5
+        last_feedback_time = time.monotonic()
 
         cmd_vel = Twist()
         result = NavigateToPosition.Result()
@@ -151,8 +154,13 @@ class NavigateToPositionServerNode(Node):
 
             angle_error = self.compute_angle_error()
             distance = self.compute_distance()
-            feedback.distance_remaining = distance
-            goal_handle.publish_feedback(feedback)
+
+            current_time = time.monotonic()
+
+            if current_time - last_feedback_time >= feedback_interval:
+                feedback.distance_remaining = distance
+                goal_handle.publish_feedback(feedback)
+                last_feedback_time = current_time
 
             if distance < distance_tolerance:
                 cmd_vel.linear.x = 0.0

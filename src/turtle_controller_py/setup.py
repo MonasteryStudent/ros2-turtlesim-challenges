@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             "turtle_controller = turtle_controller_py.turtle_controller:main",
-            "navigate_to_position_server = turtle_controller_py.navigate_to_position_server:main"
+            "navigate_to_position_server = turtle_controller_py.navigate_to_position_server:main",
+            "navigate_to_position_client = turtle_controller_py.navigate_to_position_client:main"
         ],
     },
 )

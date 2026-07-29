@@ -54,20 +54,24 @@ When the controller is deactivated, it stops publishing new velocity commands. W
 
 ### 3. Action Challenge
 
-This self-designed challenge introduces ROS 2 actions by implementing a navigation Action Server for `turtlesim`.
+This self-designed challenge introduces ROS 2 actions by implementing a navigation Action Server and Action Client for `turtlesim`.
 
-The server accepts a target position and controls the turtle until the destination is reached.
+The server accepts a target position and controls the turtle until the destination is reached. The client sends the navigation goal, processes feedback and the final result, and provides a service for canceling the goal.
 
 Features:
 
-- Accepts target coordinates through a custom `NavigateToPosition` action.
+- Uses a custom `NavigateToPosition` action with goal, result, and feedback data.
+- Accepts target coordinates through ROS 2 parameters or terminal input.
 - Rejects targets outside the valid `turtlesim` area.
 - Rejects new goals while another goal is active.
-- Continuously publishes the remaining distance as feedback.
-- Supports cancel requests.
-- Returns the final turtle position and whether the goal was completed successfully.
+- Publishes the remaining distance as feedback at regular intervals.
+- Processes successful, aborted, and canceled goal states.
+- Exposes a `/cancel_navigation` service using `std_srvs/srv/Trigger`.
+- Allows the active goal to be canceled through a ROS 2 service.
+- Returns the final turtle position and whether the navigation completed successfully.
 - Uses a closed-loop controller based on the current turtle pose.
 - Uses a `MultiThreadedExecutor` and a `ReentrantCallbackGroup` so pose updates and Action callbacks can be processed concurrently.
+- Allows feedback logging to be enabled through the `show_feedback` parameter.
 
 Unlike the previous challenges, this challenge was designed independently to apply the ROS 2 Action concepts introduced in the book.
 
@@ -102,16 +106,10 @@ Start `turtlesim`:
 ros2 run turtlesim turtlesim_node
 ```
 
-Start the Python controller:
+Then run the desired node from one of the packages, for example:
 
 ```bash
-ros2 run turtle_controller_py turtle_controller
-```
-
-Start the C++ controller:
-
-```bash
-ros2 run turtle_controller_cpp turtle_controller
+ros2 run <package_name> <executable_name>
 ```
 
 ## Acknowledgement
