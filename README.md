@@ -75,6 +75,20 @@ Features:
 
 Unlike the previous challenges, this challenge was designed independently to apply the ROS 2 Action concepts introduced in the book.
 
+### 4. Parameters Challenge
+
+This challenge extends the turtle controller by introducing configurable ROS 2 parameters.
+
+The controller can be customized through command-line arguments or a YAML parameter file.
+
+Features:
+
+- Configures the left and right pen colors through ROS 2 parameters.
+- Configures the turtle's movement speed through a ROS 2 parameter.
+- Validates all parameter values during startup.
+- Reports invalid parameter values together with the list of supported colors.
+- Supports loading parameter sets from a YAML configuration file.
+
 ## Requirements
 
 - Ubuntu 24.04

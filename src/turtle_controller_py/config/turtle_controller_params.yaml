@@ -1,0 +1,11 @@
+turtle_controller_01:
+  ros__parameters:
+    color_left: yellow
+    color_right: purple
+    turtle_velocity: 1.5
+
+turtle_controller_02:
+  ros__parameters:
+    color_left: orange
+    color_right: cyan
+    turtle_velocity: 2.0
