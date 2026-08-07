@@ -79,15 +79,17 @@ Unlike the previous challenges, this challenge was designed independently to app
 
 This challenge extends the turtle controller by introducing configurable ROS 2 parameters.
 
-The controller can be customized through command-line arguments or a YAML parameter file.
+The controller can be customized through command-line arguments, a YAML parameter file, or runtime parameter updates.
 
 Features:
 
 - Configures the left and right pen colors through ROS 2 parameters.
 - Configures the turtle's movement speed through a ROS 2 parameter.
 - Validates all parameter values during startup.
+- Validates parameter updates at runtime before applying them.
 - Reports invalid parameter values together with the list of supported colors.
 - Supports loading parameter sets from a YAML configuration file.
+- Applies valid parameter changes immediately without restarting the node.
 
 ## Requirements
 

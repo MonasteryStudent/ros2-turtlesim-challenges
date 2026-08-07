@@ -2,10 +2,14 @@
 
 import rclpy
 from rclpy.node import Node
-from turtle_controller_interfaces.srv import SwitchActivation
+from rclpy.parameter import Parameter
+
+from rcl_interfaces.msg import SetParametersResult
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 from turtlesim.srv import SetPen
+
+from turtle_controller_interfaces.srv import SwitchActivation
 
 
 class TurtleControllerNode(Node):
@@ -13,7 +17,6 @@ class TurtleControllerNode(Node):
         super().__init__("turtle_controller")
 
         self.is_active = True
-        self.errors: list[str] = []
 
         self.declare_parameter("color_left", "green")
         self.declare_parameter("color_right", "red")
@@ -29,6 +32,7 @@ class TurtleControllerNode(Node):
 
         self.pen_cur_color = self.color_left
         self.pen_request_pending = False
+        self.pending_pen_color = None
 
         self.pose_sub = self.create_subscription(
             Pose, "/turtle1/pose", self.pose_callback, 10)
@@ -38,43 +42,42 @@ class TurtleControllerNode(Node):
             SetPen, "/turtle1/set_pen")
         self.switch_activation_service = self.create_service(
             SwitchActivation, "switch_activation", self.switch_activation_service_callback)
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.get_logger().info("Turtle Controller has been started.")
 
-    def validate_velocity_param(self) -> None:
+    def validate_velocity_param(self, velocity, errors) -> None:
         min_velocity = 0.0
         max_velocity = 3.0
-        if not min_velocity < self.turtle_velocity <= max_velocity:
-            self.errors.append(
-                f"Invalid value for 'turtle_velocity': {self.turtle_velocity}. "
+        if not min_velocity < velocity <= max_velocity:
+            errors.append(
+                f"Invalid value for 'turtle_velocity': '{velocity}'.\n"
                 f"Valid range is (0.0, 3.0]."
             )
 
-    def validate_color_params(self) -> None:
-        color_error = False
-        valid_colors = ", ".join(self.pen_colors.keys())
-
-        if self.color_left not in self.pen_colors:
-            self.errors.append(
-                f"Invalid value for 'color_left': {self.color_left}."
+    def validate_color_param(self, color, side, errors) -> None:
+        if color not in self.pen_colors:
+            errors.append(
+                f"Invalid value for '{side}': '{color}'."
             )
-            color_error = True
-                
-        if self.color_right not in self.pen_colors:
-            self.errors.append(
-                f"Invalid value for 'color_right': {self.color_right}."
-            )
-            color_error = True
-
-        if color_error:
-            self.errors.append(f"Valid colors are: {valid_colors}.")
-            
+ 
     def validate_params(self) -> None:
         """Validate all configurable node parameters."""
-        self.validate_color_params()
-        self.validate_velocity_param()
-        if self.errors:
-            raise ValueError("\n".join(self.errors))
+        color_errors = []
+        velocity_errors = []
+
+        self.validate_color_param(self.color_left, "color_left", color_errors)
+        self.validate_color_param(self.color_right, "color_right", color_errors)
+        self.validate_velocity_param(self.turtle_velocity, velocity_errors)
+
+        if color_errors:
+            valid_colors = ", ".join(self.pen_colors.keys())
+            color_errors.append(f"Valid colors are: {valid_colors}.")
+
+        errors = color_errors + velocity_errors
+
+        if errors:
+            raise ValueError("\n".join(errors))
 
     def init_pen_color_settings(self) -> None:
         self.pen_colors = {
@@ -89,6 +92,9 @@ class TurtleControllerNode(Node):
     def call_set_pen(self, color_name) -> None:
         """Send a request to change the turtle's pen color."""
         if self.pen_request_pending:
+            # Keep only the most recently requested color while a SetPen
+            # request is still in progress.
+            self.pending_pen_color = color_name
             return
         
         while not self.set_pen_client.wait_for_service(timeout_sec=1.0):
@@ -126,9 +132,21 @@ class TurtleControllerNode(Node):
         self.cmd_vel_pub.publish(cmd)
 
     def set_pen_callback(self, future, color_name) -> None:
+        future.result()
+
         self.pen_cur_color = color_name
         self.pen_request_pending = False
+
         self.get_logger().info(f"Pen color changed to {color_name}.")
+
+        # Apply a color change that was requested while the previous
+        # SetPen request was still pending.
+        if self.pending_pen_color is not None:
+            next_color = self.pending_pen_color
+            self.pending_pen_color = None
+
+            if next_color != self.pen_cur_color:
+                self.call_set_pen(next_color) 
 
     def switch_activation_service_callback(self, request, response):
         if request.activate == self.is_active:
@@ -149,6 +167,46 @@ class TurtleControllerNode(Node):
         )
 
         return response
+
+    def parameters_callback(
+            self, 
+            params: list[Parameter]
+    ) -> SetParametersResult:
+        """Validate and apply parameter changes at runtime."""
+        color_errors = []
+        velocity_errors = []
+
+        for param in params:
+            if param.name in {"color_left", "color_right"}:
+                self.validate_color_param(param.value, param.name, color_errors)
+            elif param.name == "turtle_velocity":
+                self.validate_velocity_param(param.value, velocity_errors)
+
+        if color_errors:
+            valid_colors = ", ".join(self.pen_colors.keys())
+            color_errors.append(f"Valid colors are: {valid_colors}.")
+
+        errors = color_errors + velocity_errors
+
+        if errors:
+            return SetParametersResult(
+                successful=False,
+                reason="\n".join(errors)
+            )
+
+        for param in params:
+            if param.name == "color_left":
+                if self.pen_cur_color == self.color_left:
+                    self.call_set_pen(param.value)
+                self.color_left = param.value
+            elif param.name == "color_right":
+                if self.pen_cur_color == self.color_right:
+                    self.call_set_pen(param.value)
+                self.color_right = param.value
+            elif param.name == "turtle_velocity":
+                self.turtle_velocity = param.value
+
+        return SetParametersResult(successful=True)
 
 
 def main(args=None):
