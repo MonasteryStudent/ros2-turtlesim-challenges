@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rcl_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(turtlesim REQUIRED)
 find_package(turtle_controller_interfaces REQUIRED)
@@ -16,6 +17,7 @@ add_executable(turtle_controller src/turtle_controller.cpp)
 ament_target_dependencies(
   turtle_controller 
   rclcpp 
+  rcl_interfaces
   geometry_msgs 
   turtlesim
   turtle_controller_interfaces
