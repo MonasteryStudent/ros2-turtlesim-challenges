@@ -86,7 +86,9 @@ class TurtleControllerNode(Node):
             "yellow": (255, 255, 0),
             "purple": (128, 0, 128),
             "orange": (255, 165, 0),
-            "cyan"  : (0, 255, 255)
+            "cyan"  : (0, 255, 255),
+            "white" : (255, 255, 255),
+            "black" : (0, 0, 0),
         }
 
     def call_set_pen(self, color_name) -> None:

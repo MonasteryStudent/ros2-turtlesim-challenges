@@ -91,6 +91,21 @@ Features:
 - Supports loading parameter sets from a YAML configuration file.
 - Applies valid parameter changes immediately without restarting the node.
 
+### 5. Launch Files Challenge
+
+This challenge combines multiple turtle controllers and turtlesim nodes using ROS 2 launch files.
+
+Two independent turtlesim/controller pairs are started and configured together from a single launch file.
+
+Features:
+
+- Starts the complete system with two turtlesim nodes and two turtle controllers from a single terminal command.
+- Uses namespaces to separate both turtle/controller systems.
+- Uses remappings to connect the controllers to the correct turtlesim topics and `set_pen` service.
+- Loads different controller and turtlesim settings from a YAML parameter file.
+- Provides both Python and XML launch file implementations.
+- Adds black and white as supported turtle pen colors.
+
 ## Requirements
 
 - Ubuntu 24.04
