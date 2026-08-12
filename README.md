@@ -2,7 +2,7 @@
 
 A collection of independently implemented ROS 2 challenges built around the `turtlesim` package.
 
-The Topic and Service challenges are based on the book *ROS 2 from Scratch* by Edouard Renard. The Action challenge was designed independently to apply and deepen the concepts introduced in the book.
+Most challenges are based on exercises from the book *ROS 2 from Scratch* by Edouard Renard. The Action challenge was designed independently to apply and deepen the concepts introduced in the book.
 
 ## Learning Goals
 
@@ -142,11 +142,3 @@ Then run the desired node from one of the packages, for example:
 ```bash
 ros2 run <package_name> <executable_name>
 ```
-
-## Acknowledgement
-
-The Topic and Service challenges are based on the book *ROS 2 from Scratch* by Edouard Renard.
-
-The Action challenge was designed independently to explore ROS 2 actions, feedback, cancellation, and concurrency.
-
-All implementations in this repository are my own solutions developed as part of my learning process.
